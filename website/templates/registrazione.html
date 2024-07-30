@@ -1,0 +1,40 @@
+{% extends "base.html" %}                      <!-- Estende template base.html -->
+{% block title %}Registrazione{% endblock %}   <!-- Titolo pagina -->
+
+{% block content %}
+<form method="POST">                        <!-- Form per invio dati registrazione tramite metodo POST -->
+    <h3 align="center">Registrazione</h3>   <!-- Titolo form -->
+
+    <!-- Definizione campi form -->
+    <div class="form-group">
+        <label for="nome">Nome</label>
+        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome">
+    </div>
+    <div class="form-group">
+        <label for="cognome">Cognome</label>
+        <input type="text" class="form-control" id="cognome" name="cognome" placeholder="Cognome">
+    </div>
+    <div class="form-group">
+        <label for="email">Mail</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Indirizzo mail">
+    </div>
+    <div class="form-group">
+        <label for="password1">Password</label>
+        <input type="password" class="form-control" id="password1" name="password1" placeholder="Password">
+    </div>
+    <div class="form-group">
+        <label for="password2">Password (conferma)</label>
+        <input type="password" class="form-control" id="password2" name="password2" placeholder="Password">
+    </div>
+    <div class="form-group">
+        <label for="ruolo">Ruolo</label>
+        <select class="form-control" id="ruolo" name="ruolo" required>
+            <option value="Venditore">Venditore</option>
+            <option value="Acquirente">Acquirente</option>
+        </select>
+    </div>
+    <br />
+    <!-- Definizione pulsante 'Registrazione' -->
+    <button type="submit" class="btn btn-primary">Registrazione</button>
+</form>
+{% endblock %}
