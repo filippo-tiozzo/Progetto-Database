@@ -1,0 +1,31 @@
+{% extends "base.html" %}                  <!-- Estende template base.html -->
+{% block title %}Vendi prodotto{% endblock %}   <!-- Titolo pagina -->
+
+{% block content %}
+<form method="POST">                        <!-- Form per invio dati registrazione tramite metodo POST -->
+    <h3 align="center">Metti in vendita il tuo prodotto</h3>   <!-- Titolo form -->
+
+    <!-- Definizione campi form -->
+    <div class="form-group">
+        <label for="nome">Nome</label>
+        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome Prodotto" required>
+    </div>
+    <div class="form-group">
+        <label for="descrizione">Descrizione</label>
+        <input type="text" class="form-control" id="descrizione" name="descrizione" placeholder="Descrivi il tuo prodotto">
+    </div>
+    <div class="form-group">
+        <label for="prezzo">Prezzo</label>
+        <input type="number" class="form-control" id="prezzo" name="prezzo" placeholder="Prezzo di vendita" step="0.01" required>
+    </div>
+    <div class="form-group">
+        <label for="quantita">Quantità</label>
+        <input type="number" class="form-control" id="quantita" name="quantita" placeholder="Quantità di prodotti che desideri vendere" min="1" required>
+    </div>
+    <br />
+    <!-- Definizione pulsante 'Conferma' -->
+    <button type="submit" class="btn btn-primary">Conferma</button>
+    <!-- Pulsante per tornare alla pagina principale -->
+    <a href="{{ url_for('venditore.home') }}" class="btn btn-secondary">Torna alla Home</a>
+</form>
+{% endblock %}

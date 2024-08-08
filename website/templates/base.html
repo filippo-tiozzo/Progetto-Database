@@ -26,12 +26,12 @@
         </div>      
         <div class="collapse navbar-collapse" id="navbar">
         <div class="navbar-nav">
-            {% if user.is_authenticated %}
+            {% if g.user.is_authenticated %}
                 <!-- Pulsanti venditore -->
-                {% if user.ruolo == 'Venditore' %}
-
+                {% if g.user.ruolo == 'Venditore' %}
+                <a class="nav-item nav-link" href="/vendi_prodotto">Metti in Vendita</a>
                 <!-- Pulsanti acquirente -->
-                {% elif user.ruolo == 'Acquirente' %}
+                {% elif g.user.ruolo == 'Acquirente' %}
 
                 {% endif %}
 
@@ -44,7 +44,7 @@
         <div class="navbar-nav ml-auto">
 
             <!-- Pulsante di logout -->
-            {% if user.is_authenticated %}
+            {% if g.user.is_authenticated %}
                 <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
             {% endif %}
         </div>

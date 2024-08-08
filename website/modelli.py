@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 from . import db
 
 # Definizione classe (tabella) Utenti
@@ -29,6 +30,18 @@ class Venditore(db.Model):
     cognome = db.Column(db.String(50), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), index=True)
     user = db.relationship('Utenti', backref='venditori')
+    prodotti = db.relationship("Prodotto", back_populates="venditore")
+
+# Definizione classe (tabella) Prodotto
+class Prodotto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String, nullable=False)
+    descrizione = db.Column(db.String, nullable=False)
+    prezzo = db.Column(db.Float, nullable=False)
+    quantita = db.Column(db.Integer, nullable=False)
+    data_inserimento = db.Column(db.DateTime, default=datetime.now)
+    venditore_id = db.Column(db.Integer, db.ForeignKey('venditore.id'), index=True)
+    venditore = db.relationship("Venditore", back_populates="prodotti")
 
 # Creazione engine e sessione collegati al database 'amministratore'
 def get_autho_session():

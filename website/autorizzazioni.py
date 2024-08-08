@@ -3,7 +3,10 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user, login_required, logout_user
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .modelli import login_utente, registrazione_utente
+from sqlalchemy.exc import SQLAlchemyError
+from .modelli import login_utente, registrazione_utente, Prodotto
+from .import db
+
 
 # Definizione blueprint
 autorizzazioni = Blueprint('autorizzazioni', __name__)
@@ -68,3 +71,39 @@ def sign_up():
         if redirect_page:
             return redirect(url_for(redirect_page))
     return render_template("registrazione.html", user=current_user)
+
+# Definizione rotta '/vendi_prodotto'
+@autorizzazioni.route('/vendi_prodotto', methods=['GET', 'POST'])
+@login_required
+def vendi_prodotto():
+    if current_user.ruolo != 'Venditore':
+        flash("Non hai i permessi necessari per mettere in vendita prodotti.", 'error')
+        return redirect(url_for('autorizzazioni.home'))
+
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+        descrizione = request.form.get('descrizione')
+        prezzo = request.form.get('prezzo')
+        quantita = request.form.get('quantita')
+
+        if not nome or not prezzo or not quantita:
+            flash("Nome, prezzo e quantità sono obbligatori.", 'error')
+            return render_template('vendi_prodotto.html')
+
+        try:
+            nuovo_prodotto = Prodotto(
+                nome=nome,
+                descrizione=descrizione,
+                prezzo=float(prezzo),
+                quantita=int(quantita),
+                venditore_id=current_user.id
+            )
+            db.session.add(nuovo_prodotto)
+            db.session.commit()
+            flash("Prodotto messo in vendita con successo!", 'success')
+            return redirect(url_for('autorizzazioni.vendi_prodotto'))
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash(f"Errore durante l'inserimento del prodotto: {str(e)}", 'error')
+
+    return render_template('vendi_prodotto.html')

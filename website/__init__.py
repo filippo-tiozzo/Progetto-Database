@@ -1,7 +1,7 @@
 # Importazione moduli
 #import subprocess
-from flask import Flask
-from flask_login import LoginManager
+from flask import Flask, g
+from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from psycopg2 import OperationalError, ProgrammingError
 
@@ -12,7 +12,7 @@ def create_app():
 
     app.config['SECRET_KEY'] = 'odkwkwpplkwkw'   # Configurazione chiave di configurazione
     app.config['SQLALCHEMY_DATABASE_URI'] = (    # Configurazione connessione al database
-        'postgresql://postgres:Venezia123@localhost:5432/progetto'
+        'postgresql://postgres:statua9L@localhost:5432/progetto'
     )
 
     app.config['SQLALCHEMY_BINDS'] = {           # Configurazione collegamenti
@@ -54,4 +54,8 @@ def create_app():
         user = Utenti.query.get(int(user_id))
         return user
     
+    @app.before_request
+    def before_request():
+        g.user = current_user
+
     return app

@@ -1,6 +1,33 @@
-{% extends "base.html" %}                  <!-- Estende template base.html -->
-{% block title %}Venditore{% endblock %}   <!-- Titolo pagina -->
+{% extends "base.html" %} <!-- Estende template base.html -->
+{% block title %}Venditore{% endblock %} <!-- Titolo pagina -->
 
 {% block content %}
-    <h1 align="center">Venditore</h1>
+<div class="container mt-5">
+    <h1 class="text-center">Prodotti in Vendita</h1>
+    
+    <!-- Verifica se ci sono prodotti da mostrare -->
+    {% if prodotti %}
+        <div class="row mt-4">
+            {% for prodotto in prodotti %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ prodotto.nome }}</h5>
+                            <p class="card-text">{{ prodotto.descrizione }}</p>
+                            <p class="card-text"><strong>Prezzo:</strong> €{{ prodotto.prezzo }}</p>
+                            <p class="card-text"><strong>Quantità:</strong> {{ prodotto.quantita }}</p>
+                            <!-- Pulsante per modificare o eliminare il prodotto -->
+                            
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Messaggio per l'utente se non ci sono oggetti -->
+        <div class="alert alert-info mt-4">
+            <p class="text-center">Non hai ancora messo in vendita nessun prodotto.</p>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
