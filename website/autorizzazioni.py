@@ -107,3 +107,27 @@ def vendi_prodotto():
             flash(f"Errore durante l'inserimento del prodotto: {str(e)}", 'error')
 
     return render_template('vendi_prodotto.html')
+
+
+# Rotta per eliminare un prodotto
+@autorizzazioni.route('/elimina_prodotto/<int:prodotto_id>', methods=['POST'])
+@login_required
+def elimina_prodotto(prodotto_id):
+    # Cerca il prodotto nel database
+    prodotto = Prodotto.query.get_or_404(prodotto_id)
+    
+    # Controlla che il venditore corrente sia il proprietario del prodotto
+    if prodotto.venditore_id != current_user.id:
+        flash("Non sei autorizzato a rimuovere questo prodotto.", 'error')
+        return redirect(url_for('venditore.home'))
+
+    try:
+        # Rimuove il prodotto dal database
+        db.session.delete(prodotto)
+        db.session.commit()
+        flash("Prodotto rimosso con successo.", 'success')
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f"Errore durante la rimozione del prodotto: {str(e)}", 'error')
+
+    return redirect(url_for('venditore.home'))

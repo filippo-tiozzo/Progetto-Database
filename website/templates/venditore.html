@@ -16,8 +16,9 @@
                             <p class="card-text">{{ prodotto.descrizione }}</p>
                             <p class="card-text"><strong>Prezzo:</strong> €{{ prodotto.prezzo }}</p>
                             <p class="card-text"><strong>Quantità:</strong> {{ prodotto.quantita }}</p>
-                            <!-- Pulsante per modificare o eliminare il prodotto -->
-                            
+                            <!-- Pulsante per rimuovere il prodotto dalla vendita-->
+                            <form action="{{ url_for('autorizzazioni.elimina_prodotto', prodotto_id=prodotto.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger">Rimuovi</button>
                         </div>
                     </div>
                 </div>
