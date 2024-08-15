@@ -86,9 +86,13 @@ def vendi_prodotto():
         prezzo = request.form.get('prezzo')
         quantita = request.form.get('quantita')
 
-        if not nome or not prezzo or not quantita:
+        if not prezzo or float(prezzo) < 0:
+            flash("Il prezzo deve essere un valore positivo.", 'error')
+        elif not quantita or int(quantita) < 0:
+            flash("La quantità deve essere un valore positivo.", 'error')
+        elif not nome or not prezzo or not quantita:
             flash("Nome, prezzo e quantità sono obbligatori.", 'error')
-            return render_template('vendi_prodotto.html')
+            #return render_template('vendi_prodotto.html')
 
         try:
             nuovo_prodotto = Prodotto(
@@ -131,3 +135,37 @@ def elimina_prodotto(prodotto_id):
         flash(f"Errore durante la rimozione del prodotto: {str(e)}", 'error')
 
     return redirect(url_for('venditore.home'))
+
+# Rotta per modificare un prodotto
+@autorizzazioni.route('/modifica_prodotto/<int:prodotto_id>', methods=['GET', 'POST'])
+@login_required
+def modifica_prodotto(prodotto_id):
+    prodotto = Prodotto.query.get_or_404(prodotto_id)
+
+    # Verifica che l'utente sia il venditore del prodotto
+    if prodotto.venditore_id != current_user.id:
+        flash("Non sei autorizzato a modificare questo prodotto.", 'error')
+        return redirect(url_for('venditore.home'))
+
+    if request.method == 'POST':
+        # Recupera i nuovi valori dal form
+        nuovo_prezzo = request.form.get('prezzo')
+        nuova_quantita = request.form.get('quantita')
+
+        # Valida e aggiorna il prodotto
+        if not nuovo_prezzo or float(nuovo_prezzo) < 0:
+            flash("Il prezzo deve essere un valore positivo.", 'error')
+        elif not nuova_quantita or int(nuova_quantita) < 0:
+            flash("La quantità deve essere un valore positivo.", 'error')
+        else:
+            try:
+                prodotto.prezzo = float(nuovo_prezzo)
+                prodotto.quantita = int(nuova_quantita)
+                db.session.commit()
+                flash("Prodotto aggiornato con successo!", 'success')
+                return redirect(url_for('venditore.home'))
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                flash(f"Errore durante l'aggiornamento del prodotto: {str(e)}", 'error')
+
+    return render_template('modifica_prodotto.html', prodotto=prodotto)
