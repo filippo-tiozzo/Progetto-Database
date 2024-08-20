@@ -1,0 +1,35 @@
+{% extends "base.html" %} <!-- Estende template base.html -->
+{% block title %}Carrello{% endblock %} <!-- Titolo pagina -->
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Il tuo Carrello</h1>
+
+    {% if prodotti %}
+        <div class="row mt-4">
+            {% for carrello_prodotto in prodotti %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ carrello_prodotto.prodotto.nome }}</h5>
+                            <p class="card-text">{{ carrello_prodotto.prodotto.descrizione }}</p>
+                            <p class="card-text"><strong>Prezzo:</strong> {{ carrello_prodotto.prodotto.prezzo }} €</p>
+                            <p class="card-text"><strong>Quantità:</strong> {{ carrello_prodotto.quantita }}</p>
+                            <form action="{{ url_for('autorizzazioni.rimuovi_dal_carrello', carrello_prodotto_id=carrello_prodotto.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger">Rimuovi dal Carrello</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            <p class="text-center">Il tuo carrello è vuoto.</p>
+        </div>
+    {% endif %}
+    <!-- Pulsante per tornare alla pagina di ricerca -->
+    <a href="{{ url_for('acquirente.home') }}" class="btn btn-primary mt-4">Torna alla pagina principale</a>
+</div>
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends "base.html" %} <!-- Estende il template base -->
+
+{% block content %}
+<div class="container">
+    <h1>Risultati della ricerca</h1>
+    
+    <!-- Mostra un messaggio se non ci sono risultati -->
+    {% if not prodotti %}
+        <div class="alert alert-info" role="alert">
+            Nessun prodotto trovato con i criteri di ricerca.
+        </div>
+    {% else %}
+        <!-- Lista dei prodotti trovati -->
+        <div class="row">
+            {% for prodotto in prodotti %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ prodotto.nome }}</h5>
+                            <p class="card-text">{{ prodotto.descrizione }}</p>
+                            <p class="card-text"><strong>Prezzo:</strong> {{ prodotto.prezzo }} €</p>
+                            <!-- Pulsante per aggiungere al carrello -->
+                            <form action="{{ url_for('autorizzazioni.aggiungi_al_carrello', prodotto_id=prodotto.id) }}" method="POST">
+                                <button type="submit" class="btn btn-success">Aggiungi al carrello</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Pulsante per tornare alla pagina di ricerca -->
+    <a href="{{ url_for('acquirente.home') }}" class="btn btn-primary mt-4">Torna alla pagina principale</a>
+</div>
+{% endblock %}

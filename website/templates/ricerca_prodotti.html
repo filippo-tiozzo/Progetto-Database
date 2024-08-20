@@ -1,0 +1,29 @@
+{% extends "base.html" %} <!-- Estende il template base -->
+{% block title %}Ricerca prodotti{% endblock %}   <!-- Titolo pagina -->
+
+{% block content %}
+<div class="container">
+    <h1>Ricerca Prodotti</h1>
+    <p>Inserisci i criteri per cercare i prodotti in vendita:</p>
+
+    <!-- Form di ricerca -->
+    <form action="{{ url_for('autorizzazioni.ricerca_prodotto') }}" method="POST" class="mt-4">
+        <div class="form-group">
+            <label for="nome">Nome del Prodotto:</label>
+            <input type="text" class="form-control" id="nome" name="nome" placeholder="Inserisci il nome del prodotto">
+        </div>
+        <div class="form-group">
+            <label for="prezzo_min">Prezzo Minimo:</label>
+            <input type="number" class="form-control" id="prezzo_min" name="prezzo_min" step="0.01" placeholder="Prezzo minimo">
+        </div>
+        <div class="form-group">
+            <label for="prezzo_max">Prezzo Massimo:</label>
+            <input type="number" class="form-control" id="prezzo_max" name="prezzo_max" step="0.01" placeholder="Prezzo massimo">
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary">Cerca</button>
+        <!-- Pulsante per tornare alla pagina principale -->
+    <a href="{{ url_for('acquirente.home') }}" class="btn btn-secondary">Torna alla Home</a>
+    </form>
+</div>
+{% endblock %}

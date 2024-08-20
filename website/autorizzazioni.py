@@ -4,7 +4,7 @@ from flask_login import current_user, login_required, logout_user
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from .modelli import login_utente, registrazione_utente, Prodotto
+from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto
 from .import db
 
 
@@ -169,3 +169,86 @@ def modifica_prodotto(prodotto_id):
                 flash(f"Errore durante l'aggiornamento del prodotto: {str(e)}", 'error')
 
     return render_template('modifica_prodotto.html', prodotto=prodotto)
+
+# Rotta per aggiungere un prodotto al carrello
+@autorizzazioni.route('/aggiungi_al_carrello/<int:prodotto_id>', methods=['POST'])
+@login_required
+def aggiungi_al_carrello(prodotto_id):
+    prodotto = Prodotto.query.get_or_404(prodotto_id)
+    carrello = Carrello.query.filter_by(user_id=current_user.id).first()
+    
+    if not carrello:
+        carrello = Carrello(user_id=current_user.id)
+        db.session.add(carrello)
+    
+    carrello_prodotto = CarrelloProdotto.query.filter_by(carrello_id=carrello.id, prodotto_id=prodotto.id).first()
+
+    if carrello_prodotto:
+        carrello_prodotto.quantita += 1
+    else:
+        carrello_prodotto = CarrelloProdotto(carrello_id=carrello.id, prodotto_id=prodotto.id, quantita=1)
+        db.session.add(carrello_prodotto)
+
+    db.session.commit()
+    flash("Prodotto aggiunto al carrello!", 'success')
+    #return render_template('risultati_ricerca.html', prodotto_id=prodotto)
+    return redirect(url_for('acquirente.home'))
+
+# Rotta per rimuovere un prodotto dal carrello
+@autorizzazioni.route('/rimuovi_dal_carrello/<int:carrello_prodotto_id>', methods=['POST'])
+@login_required
+def rimuovi_dal_carrello(carrello_prodotto_id):   #rimuove il prodotto dal carrello o ne diminuisce la quantità di 1
+    carrello_prodotto = CarrelloProdotto.query.get_or_404(carrello_prodotto_id)
+    
+    if carrello_prodotto.carrello.user_id != current_user.id:
+        flash("Non sei autorizzato a rimuovere questo prodotto dal carrello.", 'error')
+        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+    try:
+        # Riduci la quantità di 1
+        if carrello_prodotto.quantita > 1:
+            carrello_prodotto.quantita -= 1
+            flash("Quantità del prodotto diminuita di 1", 'success')
+        else:
+            # Se la quantità è 1, rimuovi il prodotto dal carrello
+            db.session.delete(carrello_prodotto)
+            flash("Prodotto rimosso dal carrello.", 'success')
+        db.session.commit()
+        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f"Errore durante la rimozione del prodotto: {str(e)}", 'error')
+
+@autorizzazioni.route('/carrello', methods=['GET'])
+@login_required
+def visualizza_carrello():
+    carrello = Carrello.query.filter_by(user_id=current_user.id).first()
+    if not carrello:
+        carrello = Carrello(user_id=current_user.id)
+        db.session.add(carrello)
+        db.session.commit()
+    carrello_prodotti = CarrelloProdotto.query.filter_by(carrello_id=carrello.id).all()
+    return render_template('carrello.html', prodotti=carrello_prodotti)
+
+# Rotta per la ricerca dei prodotti 
+@autorizzazioni.route('/ricerca_prodotto', methods=['GET', 'POST'])
+def ricerca_prodotto():
+    nome = request.form.get('nome')
+    prezzo_min = request.form.get('prezzo_min')
+    prezzo_max = request.form.get('prezzo_max')
+
+    query = Prodotto.query
+    
+    if nome:
+        query = query.filter(Prodotto.nome.ilike(f'%{nome}%'))
+    if prezzo_min:
+        query = query.filter(Prodotto.prezzo >= float(prezzo_min))
+    if prezzo_max:
+        query = query.filter(Prodotto.prezzo <= float(prezzo_max))
+
+    prodotti = query.all()
+
+    return render_template('risultati_ricerca.html', prodotti=prodotti)
+
+@autorizzazioni.route('/ricerca_prodotti', methods=['GET'])
+def mostra_form_ricerca():
+    return render_template('ricerca_prodotti.html')

@@ -1,6 +1,32 @@
-{% extends "base.html" %}                   <!-- Estende template base.html -->
-{% block title %}Acquirente{% endblock %}   <!-- Titolo pagina -->
+{% extends "base.html" %} <!-- Estende template base.html -->
+{% block title %}Acquirente{% endblock %} <!-- Titolo pagina -->
 
 {% block content %}
-    <h1 align="center">Acquirente</h1>
+<div class="container mt-5">
+    <h1 class="text-center">Prodotti acquistati</h1>>
+
+    <!-- Sezione per i prodotti acquistati -->
+    {% if acquisti %}
+        <div class="row mt-4">
+            {% for acquisto in acquisti %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ acquisto.prodotto.nome }}</h5>
+                            <p class="card-text">{{ acquisto.prodotto.descrizione }}</p>
+                            <p class="card-text"><strong>Prezzo:</strong> {{ acquisto.prodotto.prezzo }} €</p>
+                            <p class="card-text"><strong>Quantità:</strong> {{ acquisto.quantita }}</p>
+                            <p class="card-text"><strong>Data Acquisto:</strong> {{ acquisto.data_acquisto.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Messaggio per l'utente se non ci sono prodotti acquistati -->
+        <div class="alert alert-info mt-4">
+            <p class="text-center">Non hai ancora acquistato nessun prodotto.</p>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

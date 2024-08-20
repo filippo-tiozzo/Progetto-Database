@@ -43,6 +43,28 @@ class Prodotto(db.Model):
     venditore_id = db.Column(db.Integer, db.ForeignKey('venditore.id'), index=True)
     venditore = db.relationship("Venditore", back_populates="prodotti")
 
+class Carrello(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
+    prodotti = db.relationship('CarrelloProdotto', back_populates='carrello')
+
+class CarrelloProdotto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    carrello_id = db.Column(db.Integer, db.ForeignKey('carrello.id'), nullable=False)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
+    quantita = db.Column(db.Integer, nullable=False)
+    carrello = db.relationship('Carrello', back_populates='prodotti')
+    prodotto = db.relationship('Prodotto')
+
+class Acquisto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
+    quantita = db.Column(db.Integer, nullable=False)
+    data_acquisto = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    user = db.relationship('Utenti', backref='acquisti')
+    prodotto = db.relationship('Prodotto', backref='acquisti')
+    
 # Creazione engine e sessione collegati al database 'amministratore'
 def get_autho_session():
     db_autho_uri = current_app.config['SQLALCHEMY_BINDS']['amministratore']
