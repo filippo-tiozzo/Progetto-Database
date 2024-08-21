@@ -30,6 +30,10 @@
     {% endif %}
     <!-- Pulsante per tornare alla pagina di ricerca -->
     <a href="{{ url_for('acquirente.home') }}" class="btn btn-primary mt-4">Torna alla pagina principale</a>
+    <!-- Pulsante per acquistare i prodotti nel carrello -->
+    <form action="{{ url_for('autorizzazioni.acquista') }}" method="POST">
+        <button type="submit" class="btn btn-primary">Acquista</button>
+    </form>
 </div>
 {% endblock %}
 

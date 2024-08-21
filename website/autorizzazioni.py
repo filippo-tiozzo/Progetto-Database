@@ -4,7 +4,7 @@ from flask_login import current_user, login_required, logout_user
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto
+from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto
 from .import db
 
 
@@ -252,3 +252,64 @@ def ricerca_prodotto():
 @autorizzazioni.route('/ricerca_prodotti', methods=['GET'])
 def mostra_form_ricerca():
     return render_template('ricerca_prodotti.html')
+
+@autorizzazioni.route('/acquista', methods=['POST'])
+@login_required
+def acquista():
+    # Ottieni il carrello dell'utente
+    carrello = Carrello.query.filter_by(user_id=current_user.id).first_or_404()
+
+    # Verifica se il carrello è vuoto
+    if not carrello.prodotti:
+        flash('Il carrello è vuoto.', 'warning')
+        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+
+    # Creazione di un nuovo ordine
+    nuovo_ordine = Ordine(user_id=current_user.id)
+    db.session.add(nuovo_ordine)
+    db.session.flush()  # Flush per ottenere l'ID dell'ordine
+
+    try:
+        # Per ogni prodotto nel carrello, crea una riga in OrdineProdotto e aggiorna la quantità del prodotto
+        for carrello_prodotto in carrello.prodotti:
+            prodotto = Prodotto.query.get(carrello_prodotto.prodotto_id)
+            
+            if prodotto.quantita < carrello_prodotto.quantita:
+                flash(f"Quantità insufficiente per il prodotto {prodotto.nome}.", 'error')
+                return redirect(url_for('autorizzazioni.visualizza_carrello'))
+
+            # Riduci la quantità del prodotto disponibile
+            prodotto.quantita -= carrello_prodotto.quantita
+
+            # Aggiungi il prodotto all'ordine
+            ordine_prodotto = OrdineProdotto(
+                ordine_id=nuovo_ordine.id,
+                prodotto_id=prodotto.id,
+                quantita=carrello_prodotto.quantita
+            )
+            db.session.add(ordine_prodotto)
+
+            # Crea una nuova voce in Acquisto per tracciare la transazione
+            nuovo_acquisto = Acquisto(
+                user_id=current_user.id,
+                prodotto_id=prodotto.id,
+                quantita=carrello_prodotto.quantita
+            )
+            db.session.add(nuovo_acquisto)
+
+             # Elimina il prodotto dal carrello
+            db.session.delete(carrello_prodotto)
+
+        # Svuota il carrello
+        #db.session.query(CarrelloProdotto).filter_by(carrello_id=carrello.id).delete()
+        db.session.delete(carrello)
+
+        # Salva le modifiche
+        db.session.commit()
+        flash("Acquisto completato con successo!", 'success')
+        return redirect(url_for('acquirente.home'))
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f"Errore durante l'acquisto: {str(e)}", 'error')
+        return redirect(url_for('autorizzazioni.visualizza_carrello'))

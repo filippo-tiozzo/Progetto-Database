@@ -64,6 +64,20 @@ class Acquisto(db.Model):
     data_acquisto = db.Column(db.DateTime, default=datetime.now, nullable=False)
     user = db.relationship('Utenti', backref='acquisti')
     prodotto = db.relationship('Prodotto', backref='acquisti')
+
+class Ordine(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
+    data_ordine = db.Column(db.DateTime, default=datetime.now)
+    prodotti = db.relationship('OrdineProdotto', backref='ordine', lazy=True)
+
+class OrdineProdotto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ordine_id = db.Column(db.Integer, db.ForeignKey('ordine.id'), nullable=False)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
+    quantita = db.Column(db.Integer, nullable=False)
+
+    prodotto = db.relationship('Prodotto')
     
 # Creazione engine e sessione collegati al database 'amministratore'
 def get_autho_session():
