@@ -261,7 +261,7 @@ def acquista():
 
     # Verifica se il carrello è vuoto
     if not carrello.prodotti:
-        flash('Il carrello è vuoto.', 'warning')
+        flash('Il carrello è vuoto.', 'error')
         return redirect(url_for('autorizzazioni.visualizza_carrello'))
 
     # Creazione di un nuovo ordine
