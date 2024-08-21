@@ -64,6 +64,8 @@ class Acquisto(db.Model):
     data_acquisto = db.Column(db.DateTime, default=datetime.now, nullable=False)
     user = db.relationship('Utenti', backref='acquisti')
     prodotto = db.relationship('Prodotto', backref='acquisti')
+    def ha_recensione(self):
+        return Recensione.query.filter_by(prodotto_id=self.prodotto_id, user_id=self.user_id).first() is not None
 
 class Ordine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,6 +80,16 @@ class OrdineProdotto(db.Model):
     quantita = db.Column(db.Integer, nullable=False)
 
     prodotto = db.relationship('Prodotto')
+
+class Recensione(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
+    voto = db.Column(db.Integer, nullable=False)
+    data_recensione = db.Column(db.DateTime, default=datetime.now, nullable=False)
+
+    prodotto = db.relationship('Prodotto', backref='recensioni')
+    user = db.relationship('Utenti', backref='recensioni')
     
 # Creazione engine e sessione collegati al database 'amministratore'
 def get_autho_session():

@@ -4,7 +4,7 @@ from flask_login import current_user, login_required, logout_user
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto
+from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto, Recensione
 from .import db
 
 
@@ -313,3 +313,36 @@ def acquista():
         db.session.rollback()
         flash(f"Errore durante l'acquisto: {str(e)}", 'error')
         return redirect(url_for('autorizzazioni.visualizza_carrello'))
+    
+@autorizzazioni.route('/recensione/<int:prodotto_id>', methods=['GET', 'POST'])
+@login_required
+def recensione_prodotto(prodotto_id):
+    prodotto = Prodotto.query.get(prodotto_id)
+    if not prodotto:
+        flash("Prodotto non trovato.", 'error')
+        return redirect(url_for('acquirente.home'))
+
+    # Verifica se l'utente ha già inviato una recensione per questo prodotto
+    recensione = Recensione.query.filter_by(prodotto_id=prodotto_id, user_id=current_user.id).first()
+
+    if request.method == 'POST':
+        voto = request.form.get('voto')
+        if voto and voto.isdigit() and 1 <= int(voto) <= 5:
+            if recensione:
+                # Aggiorna la recensione esistente
+                recensione.voto = int(voto)
+                flash("Recensione modificata con successo!", 'success')
+            else:
+                # Crea una nuova recensione
+                recensione = Recensione(
+                    prodotto_id=prodotto_id,
+                    user_id=current_user.id,
+                    voto=int(voto)
+                )
+                db.session.add(recensione)
+                flash("Recensione salvata con successo!", 'success')            
+            db.session.commit()
+            return redirect(url_for('acquirente.home'))
+
+    # Passa la recensione esistente al template per precompilare il modulo
+    return render_template('recensione_prodotto.html', prodotto=prodotto, recensione=recensione)

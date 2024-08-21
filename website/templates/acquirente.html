@@ -17,6 +17,17 @@
                             <p class="card-text"><strong>Prezzo:</strong> {{ acquisto.prodotto.prezzo }} €</p>
                             <p class="card-text"><strong>Quantità:</strong> {{ acquisto.quantita }}</p>
                             <p class="card-text"><strong>Data Acquisto:</strong> {{ acquisto.data_acquisto.strftime('%d/%m/%Y') }}</p>
+                            
+                            <!-- Pulsante per recensire il prodotto aquistato-->
+                            <form action="{{ url_for('autorizzazioni.recensione_prodotto', prodotto_id=acquisto.prodotto.id) }}" method="POST">
+                                <button type="submit" class="btn btn-primary mr-2">
+                                    {% if acquisto.ha_recensione() %}
+                                        Modifica Recensione
+                                    {% else %}
+                                        Invia Recensione
+                                    {% endif %}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
