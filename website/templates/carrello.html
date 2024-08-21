@@ -1,5 +1,5 @@
-{% extends "base.html" %} <!-- Estende template base.html -->
-{% block title %}Carrello{% endblock %} <!-- Titolo pagina -->
+{% extends "base.html" %}
+{% block title %}Carrello{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -28,12 +28,13 @@
             <p class="text-center">Il tuo carrello è vuoto.</p>
         </div>
     {% endif %}
-    <!-- Pulsante per tornare alla pagina di ricerca -->
-    <a href="{{ url_for('acquirente.home') }}" class="btn btn-primary mt-4">Torna alla pagina principale</a>
-    <!-- Pulsante per acquistare i prodotti nel carrello -->
-    <form action="{{ url_for('autorizzazioni.acquista') }}" method="POST">
-        <button type="submit" class="btn btn-primary">Acquista</button>
-    </form>
+    
+    <!-- Pulsanti affiancati -->
+    <div class="mt-4">
+        <form action="{{ url_for('autorizzazioni.acquista') }}" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-primary">Acquista</button>
+        </form>
+        <a href="{{ url_for('acquirente.home') }}" class="btn btn-secondary">Torna alla Home</a>
+    </div>
 </div>
 {% endblock %}
-
