@@ -4,7 +4,7 @@ from flask_login import current_user, login_required, logout_user
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto, Recensione
+from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto, Recensione, Venditore
 from .import db
 
 
@@ -169,6 +169,52 @@ def modifica_prodotto(prodotto_id):
                 flash(f"Errore durante l'aggiornamento del prodotto: {str(e)}", 'error')
 
     return render_template('modifica_prodotto.html', prodotto=prodotto)
+
+@autorizzazioni.route('/gestisci_ordini', methods=['GET'])
+@login_required
+def gestisci_ordini():
+    # Trova il venditore associato all'utente attualmente loggato
+    venditore = Venditore.query.filter_by(user_id=current_user.id).first()
+
+    if not venditore:
+        flash('Non sei autorizzato a gestire gli ordini', category='error')
+        return redirect(url_for('home'))  # Reindirizza a una pagina di default o errore
+
+    # Trova tutti i prodotti venduti dal venditore
+    prodotti_venduti = Prodotto.query.filter_by(venditore_id=venditore.id).all()
+
+    # Trova gli ordini che contengono questi prodotti
+    ordini_ids = set()
+    for prodotto in prodotti_venduti:
+        ordini_prodotti = OrdineProdotto.query.filter_by(prodotto_id=prodotto.id).all()
+        for ordine_prodotto in ordini_prodotti:
+            ordini_ids.add(ordine_prodotto.ordine_id)
+
+    ordini = Ordine.query.filter(Ordine.id.in_(ordini_ids)).all()
+
+    return render_template('gestisci_ordini.html', ordini=ordini)
+
+
+@autorizzazioni.route('/spedisci_ordine/<int:ordine_id>', methods=['POST'])
+@login_required
+def spedisci_ordine(ordine_id):
+    ordine = Ordine.query.get_or_404(ordine_id)
+
+    # Verifica se l'ordine contiene prodotti venduti dal venditore attuale
+    prodotti_ordine = {op.prodotto_id for op in ordine.prodotti}
+    prodotti_venditore = {p.id for p in Prodotto.query.filter_by(venditore_id=current_user.id).all()}
+
+    if not prodotti_venditore.intersection(prodotti_ordine):
+        return redirect(url_for('autorizzazioni.gestisci_ordini'))
+
+    # Aggiorna lo stato dell'ordine
+    ordine.stato = 'spedito'
+    db.session.commit()
+    flash("Ordine spedito!", 'success')
+    # Aggiungi qui il codice per inviare un'email al cliente o notificare la spedizione
+
+    return redirect(url_for('autorizzazioni.gestisci_ordini'))
+
 
 # Rotta per aggiungere un prodotto al carrello
 @autorizzazioni.route('/aggiungi_al_carrello/<int:prodotto_id>', methods=['POST'])

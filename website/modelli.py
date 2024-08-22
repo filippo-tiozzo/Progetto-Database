@@ -72,6 +72,7 @@ class Ordine(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
     data_ordine = db.Column(db.DateTime, default=datetime.now)
     prodotti = db.relationship('OrdineProdotto', backref='ordine', lazy=True)
+    stato = db.Column(db.String(20), nullable=False, default='acquistato')
 
 class OrdineProdotto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
