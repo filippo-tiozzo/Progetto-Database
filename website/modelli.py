@@ -42,7 +42,12 @@ class Prodotto(db.Model):
     data_inserimento = db.Column(db.DateTime, default=datetime.now)
     venditore_id = db.Column(db.Integer, db.ForeignKey('venditore.id'), index=True)
     venditore = db.relationship("Venditore", back_populates="prodotti")
-
+    def media_voti(self):
+        recensioni = Recensione.query.filter_by(prodotto_id=self.id).all()
+        if recensioni:
+            return sum(r.voto for r in recensioni) / len(recensioni)
+        return None
+    
 class Carrello(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)

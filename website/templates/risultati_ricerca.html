@@ -19,6 +19,8 @@
                             <h5 class="card-title">{{ prodotto.nome }}</h5>
                             <p class="card-text">{{ prodotto.descrizione }}</p>
                             <p class="card-text"><strong>Prezzo:</strong> {{ prodotto.prezzo }} €</p>
+                            <!-- Mostra la media dei voti se disponibile -->
+                            <p class="card-text"><strong>Media Voti:</strong> {{ prodotto.media_voti() if prodotto.media_voti() is not none else 'Nessuna recensione' }}</p>
                             <!-- Pulsante per aggiungere al carrello -->
                             <form action="{{ url_for('autorizzazioni.aggiungi_al_carrello', prodotto_id=prodotto.id) }}" method="POST">
                                 <button type="submit" class="btn btn-success">Aggiungi al carrello</button>
