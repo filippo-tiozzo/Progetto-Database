@@ -58,6 +58,7 @@ class CarrelloProdotto(db.Model):
     carrello_id = db.Column(db.Integer, db.ForeignKey('carrello.id'), nullable=False)
     prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
     quantita = db.Column(db.Integer, nullable=False)
+    sconto = db.Column(db.Boolean, default=False)
     carrello = db.relationship('Carrello', back_populates='prodotti')
     prodotto = db.relationship('Prodotto')
 
