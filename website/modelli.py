@@ -79,7 +79,7 @@ class OrdineProdotto(db.Model):
     ordine_id = db.Column(db.Integer, db.ForeignKey('ordine.id'), nullable=False)
     prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
     quantita = db.Column(db.Integer, nullable=False)
-
+    spedito = db.Column(db.Boolean, default=False) 
     prodotto = db.relationship('Prodotto')
 
 class Recensione(db.Model):

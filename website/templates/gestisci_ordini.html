@@ -17,21 +17,24 @@
     </thead>
     <tbody>
         {% for ordine in ordini %}
+            {% set tutti_spediti = true %}
             <tr>
                 <td>{{ ordine.id }}</td>
                 <td>{{ ordine.data_ordine.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td>
                     <ul>
                         {% for ordine_prodotto in ordine.prodotti %}
-                            <li>
-                                {{ ordine_prodotto.prodotto.nome }} - Quantità: {{ ordine_prodotto.quantita }} - Prezzo: {{ ordine_prodotto.prodotto.prezzo * ordine_prodotto.quantita | round(2) }}
-                            </li>
+                            {% if ordine_prodotto.prodotto_id in prodotti_venditore %}
+                                <li>
+                                    {{ ordine_prodotto.prodotto.nome }} - Quantità: {{ ordine_prodotto.quantita }} - Prezzo: {{ ordine_prodotto.prodotto.prezzo * ordine_prodotto.quantita | round(2) }}
+                                </li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </td>
                 <td>{{ ordine.stato }}</td>
                 <td>
-                    {% if ordine.stato != 'spedito' %}
+                    {% if ordine.stato == 'acquistato'%}
                         <form action="{{ url_for('autorizzazioni.spedisci_ordine', ordine_id=ordine.id) }}" method="post">
                             <button type="submit" class="btn btn-success">Spedisci Ordine</button>
                         </form>

@@ -173,45 +173,53 @@ def modifica_prodotto(prodotto_id):
 @autorizzazioni.route('/gestisci_ordini', methods=['GET'])
 @login_required
 def gestisci_ordini():
-    # Trova il venditore associato all'utente attualmente loggato
     venditore = Venditore.query.filter_by(user_id=current_user.id).first()
 
     if not venditore:
         flash('Non sei autorizzato a gestire gli ordini', category='error')
         return redirect(url_for('home'))  # Reindirizza a una pagina di default o errore
 
-    # Trova tutti i prodotti venduti dal venditore
     prodotti_venduti = Prodotto.query.filter_by(venditore_id=venditore.id).all()
+    prodotti_venditori_ids = {p.id for p in prodotti_venduti}
 
-    # Trova gli ordini che contengono questi prodotti
     ordini_ids = set()
     for prodotto in prodotti_venduti:
         ordini_prodotti = OrdineProdotto.query.filter_by(prodotto_id=prodotto.id).all()
         for ordine_prodotto in ordini_prodotti:
-            ordini_ids.add(ordine_prodotto.ordine_id)
+            ordine = Ordine.query.get(ordine_prodotto.ordine_id)
+            if ordine and any(op.prodotto_id in prodotti_venditori_ids for op in ordine.prodotti):
+                ordini_ids.add(ordine.id)
 
     ordini = Ordine.query.filter(Ordine.id.in_(ordini_ids)).all()
 
-    return render_template('gestisci_ordini.html', ordini=ordini)
+    return render_template('gestisci_ordini.html', ordini=ordini, prodotti_venditore=prodotti_venditori_ids)
 
-
+# Rotta per spedire i propri prodotti
 @autorizzazioni.route('/spedisci_ordine/<int:ordine_id>', methods=['POST'])
 @login_required
 def spedisci_ordine(ordine_id):
     ordine = Ordine.query.get_or_404(ordine_id)
-
-    # Verifica se l'ordine contiene prodotti venduti dal venditore attuale
-    prodotti_ordine = {op.prodotto_id for op in ordine.prodotti}
+    
+    # Trova tutti i prodotti dell'ordine
+    prodotti_ordine = OrdineProdotto.query.filter_by(ordine_id=ordine_id).all()
     prodotti_venditore = {p.id for p in Prodotto.query.filter_by(venditore_id=current_user.id).all()}
 
-    if not prodotti_venditore.intersection(prodotti_ordine):
-        return redirect(url_for('autorizzazioni.gestisci_ordini'))
+    # Aggiorna lo stato di spedizione dei prodotti venduti dal venditore
+    for op in prodotti_ordine:
+        if op.prodotto_id in prodotti_venditore:
+            op.spedito = True
+   
+    # Controlla se tutti i prodotti (di tutti i venditori) sono stati spediti
+    tutti_spediti = all(op.spedito for op in prodotti_ordine)
+    
+    # Se tutti i prodotti dell'ordine sono spediti, aggiorna lo stato dell'ordine
+    if tutti_spediti:
+        ordine.stato = 'spedito'
+    else:
+        ordine.stato = 'in elaborazione'
 
-    # Aggiorna lo stato dell'ordine
-    ordine.stato = 'spedito'
     db.session.commit()
-    flash("Ordine spedito!", 'success')
-    # Aggiungi qui il codice per inviare un'email al cliente o notificare la spedizione
+    flash("Ordine aggiornato!", 'success')
 
     return redirect(url_for('autorizzazioni.gestisci_ordini'))
 
