@@ -36,7 +36,7 @@
 
                             <p class="card-text"><strong>Quantità:</strong> {{ carrello_prodotto.quantita }}</p>
 
-                            <form action="{{ url_for('autorizzazioni.rimuovi_dal_carrello', carrello_prodotto_id=carrello_prodotto.id) }}" method="POST">
+                            <form action="{{ url_for('logica.rimuovi_dal_carrello', carrello_prodotto_id=carrello_prodotto.id) }}" method="POST">
                                 <div class="form-group">
                                     <label for="quantita">Quantità da rimuovere:</label>
                                     <input type="number" name="quantita" id="quantita" class="form-control" value="1" min="1" max="{{ carrello_prodotto.quantita }}">
@@ -63,7 +63,7 @@
     
     <!-- Pulsanti affiancati -->
     <div class="mt-4">
-        <form action="{{ url_for('autorizzazioni.acquista') }}" method="POST" class="d-inline">
+        <form action="{{ url_for('logica.acquista') }}" method="POST" class="d-inline">
             <button type="submit" class="btn btn-primary">Acquista</button>
         </form>
         <a href="{{ url_for('acquirente.home') }}" class="btn btn-secondary">Torna alla Home</a>

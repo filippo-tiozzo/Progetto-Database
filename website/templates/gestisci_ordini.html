@@ -35,7 +35,7 @@
                 <td>{{ ordine.stato }}</td>
                 <td>
                     {% if ordine.stato == 'acquistato'%}
-                        <form action="{{ url_for('autorizzazioni.spedisci_ordine', ordine_id=ordine.id) }}" method="post">
+                        <form action="{{ url_for('logica.spedisci_ordine', ordine_id=ordine.id) }}" method="post">
                             <button type="submit" class="btn btn-success">Spedisci Ordine</button>
                         </form>
                     {% endif %}

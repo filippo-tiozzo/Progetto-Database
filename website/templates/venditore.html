@@ -18,9 +18,9 @@
                             <p class="card-text"><strong>Quantità:</strong> {{ prodotto.quantita }}</p>
                             
                              <!-- Pulsante per modificare il prodotto -->
-                             <a href="{{ url_for('autorizzazioni.modifica_prodotto', prodotto_id=prodotto.id) }}" class="btn btn-warning">Modifica</a>
+                             <a href="{{ url_for('logica.modifica_prodotto', prodotto_id=prodotto.id) }}" class="btn btn-warning">Modifica</a>
                             <!-- Pulsante per rimuovere il prodotto dalla vendita-->
-                            <form action="{{ url_for('autorizzazioni.elimina_prodotto', prodotto_id=prodotto.id) }}" method="POST">
+                            <form action="{{ url_for('logica.elimina_prodotto', prodotto_id=prodotto.id) }}" method="POST">
                                 <button type="submit" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">Rimuovi</button>
                             </form>
                         </div>

@@ -26,12 +26,12 @@ def create_app():
     db.init_app(app)                                       # Inizializza SQLAlchemy con istanza applicazione Flask
 
     # Importazione blueprint
-    from .autorizzazioni import autorizzazioni
+    from .logica import logica
     from .acquirente import acquirente
     from .venditore import venditore
 
     # Registrazione blueprint
-    app.register_blueprint(autorizzazioni, url_prefix='/')
+    app.register_blueprint(logica, url_prefix='/')
     app.register_blueprint(acquirente, url_prefix='/acquirente')
     app.register_blueprint(venditore, url_prefix='/venditore')
     
@@ -43,9 +43,9 @@ def create_app():
             pass                                                     # Se viene catturata un'eccezione continua l'esecuzione
     from .modelli import Utenti                                      # Importazione classe (tabella) Utenti
     
-    # Configurazione e inizializzazione autenticazione e rotta 'autorizzazioni.login' definita nel blueprint 'autorizzazioni' 
+    # Configurazione e inizializzazione autenticazione e rotta 'logica.login' definita nel blueprint 'logica' 
     login_manager = LoginManager()
-    login_manager.login_view = 'autorizzazioni.login'
+    login_manager.login_view = 'logica.login'
     login_manager.init_app(app)
 
     # Utilizza decoratore per caricamento utente 

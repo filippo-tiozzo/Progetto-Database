@@ -22,7 +22,7 @@
                             <!-- Mostra la media dei voti se disponibile -->
                             <p class="card-text"><strong>Media Voti:</strong> {{ prodotto.media_voti() if prodotto.media_voti() is not none else 'Nessuna recensione' }}</p>
                             <!-- Pulsante per aggiungere al carrello con input quantità -->
-                            <form action="{{ url_for('autorizzazioni.aggiungi_al_carrello', prodotto_id=prodotto.id) }}" method="POST">
+                            <form action="{{ url_for('logica.aggiungi_al_carrello', prodotto_id=prodotto.id) }}" method="POST">
                                 <div class="form-group">
                                     <label for="quantita">Quantità:</label>
                                     <input type="number" name="quantita" id="quantita" class="form-control" value="1" min="1">

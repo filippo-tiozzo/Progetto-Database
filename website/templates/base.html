@@ -30,11 +30,11 @@
                 <!-- Pulsanti venditore -->
                 {% if g.user.ruolo == 'Venditore' %}
                 <a class="nav-item nav-link" href="/vendi_prodotto">Metti in Vendita</a>
-                <a class="nav-item nav-link" href="{{ url_for('autorizzazioni.gestisci_ordini') }}">Gestici ordini</a>
+                <a class="nav-item nav-link" href="{{ url_for('logica.gestisci_ordini') }}">Gestici ordini</a>
                 <!-- Pulsanti acquirente -->
                 {% elif g.user.ruolo == 'Acquirente' %}
-                <a class="nav-item nav-link" href="{{ url_for('autorizzazioni.mostra_form_ricerca') }}">Ricerca prodotti</a>
-                <a class="nav-item nav-link" href="{{ url_for('autorizzazioni.visualizza_carrello') }}">Vai al Carrello</a>
+                <a class="nav-item nav-link" href="{{ url_for('logica.mostra_form_ricerca') }}">Ricerca prodotti</a>
+                <a class="nav-item nav-link" href="{{ url_for('logica.visualizza_carrello') }}">Vai al Carrello</a>
                 {% endif %}
 
             <!-- Pulsanti di login e registrazione -->

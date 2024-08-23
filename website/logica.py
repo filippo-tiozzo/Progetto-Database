@@ -9,7 +9,7 @@ from .import db
 
 
 # Definizione blueprint
-autorizzazioni = Blueprint('autorizzazioni', __name__)
+logica = Blueprint('logica', __name__)
 
 # Creazione engine e sessione collegati al database 'amministratore'
 def get_autho_session():
@@ -19,23 +19,23 @@ def get_autho_session():
     return Session()
 
 # Definizione rotta '/'
-@autorizzazioni.route('/', methods=['GET', 'POST'])
+@logica.route('/', methods=['GET', 'POST'])
 def home():
     if current_user.is_authenticated:  
         return render_template("login.html", user=current_user)   # Visualizza template 'login.html' e passa utente autenticato
     else:
-        return redirect(url_for('autorizzazioni.login'))          # Reindirizza alla pagina di login
+        return redirect(url_for('logica.login'))          # Reindirizza alla pagina di login
 
 # Definizione rotta '/logout'
-@autorizzazioni.route('/logout')
+@logica.route('/logout')
 @login_required                                          # Decoratore per verifica autenticazione
 def logout():
     logout_user()                                        # Esegue logout
     flash('Logout effettuato con successo', 'success')
-    return redirect(url_for('autorizzazioni.login'))     # Reindirizza alla pagina di login
+    return redirect(url_for('logica.login'))     # Reindirizza alla pagina di login
 
 # Definizione rotta '/login'
-@autorizzazioni.route('/login', methods=['GET', 'POST'])
+@logica.route('/login', methods=['GET', 'POST'])
 def login():
     try:
         if request.method == 'POST':
@@ -50,10 +50,10 @@ def login():
         return render_template("login.html", user=current_user)
     except Exception as e:
         flash('Error durante il login: {}'.format(e), category='error')
-        return redirect(url_for('autorizzazioni.login'))                  # Reindirizza alla pagina di login
+        return redirect(url_for('logica.login'))                  # Reindirizza alla pagina di login
 
 # Definizione rotta '/registrazione'
-@autorizzazioni.route('/registrazione', methods=['GET', 'POST'])
+@logica.route('/registrazione', methods=['GET', 'POST'])
 def sign_up():
     if current_user.is_authenticated:
         return redirect(url_for('venditore.home'))
@@ -73,12 +73,12 @@ def sign_up():
     return render_template("registrazione.html", user=current_user)
 
 # Definizione rotta '/vendi_prodotto'
-@autorizzazioni.route('/vendi_prodotto', methods=['GET', 'POST'])
+@logica.route('/vendi_prodotto', methods=['GET', 'POST'])
 @login_required
 def vendi_prodotto():
     if current_user.ruolo != 'Venditore':
         flash("Non hai i permessi necessari per mettere in vendita prodotti.", 'error')
-        return redirect(url_for('autorizzazioni.home'))
+        return redirect(url_for('logica.home'))
 
     if request.method == 'POST':
         nome = request.form.get('nome')
@@ -105,7 +105,7 @@ def vendi_prodotto():
             db.session.add(nuovo_prodotto)
             db.session.commit()
             flash("Prodotto messo in vendita con successo!", 'success')
-            return redirect(url_for('autorizzazioni.vendi_prodotto'))
+            return redirect(url_for('logica.vendi_prodotto'))
         except SQLAlchemyError as e:
             db.session.rollback()
             flash(f"Errore durante l'inserimento del prodotto: {str(e)}", 'error')
@@ -114,7 +114,7 @@ def vendi_prodotto():
 
 
 # Rotta per eliminare un prodotto
-@autorizzazioni.route('/elimina_prodotto/<int:prodotto_id>', methods=['POST'])
+@logica.route('/elimina_prodotto/<int:prodotto_id>', methods=['POST'])
 @login_required
 def elimina_prodotto(prodotto_id):
     # Cerca il prodotto nel database
@@ -137,7 +137,7 @@ def elimina_prodotto(prodotto_id):
     return redirect(url_for('venditore.home'))
 
 # Rotta per modificare un prodotto
-@autorizzazioni.route('/modifica_prodotto/<int:prodotto_id>', methods=['GET', 'POST'])
+@logica.route('/modifica_prodotto/<int:prodotto_id>', methods=['GET', 'POST'])
 @login_required
 def modifica_prodotto(prodotto_id):
     prodotto = Prodotto.query.get_or_404(prodotto_id)
@@ -170,7 +170,7 @@ def modifica_prodotto(prodotto_id):
 
     return render_template('modifica_prodotto.html', prodotto=prodotto)
 
-@autorizzazioni.route('/gestisci_ordini', methods=['GET'])
+@logica.route('/gestisci_ordini', methods=['GET'])
 @login_required
 def gestisci_ordini():
     venditore = Venditore.query.filter_by(user_id=current_user.id).first()
@@ -195,7 +195,7 @@ def gestisci_ordini():
     return render_template('gestisci_ordini.html', ordini=ordini, prodotti_venditore=prodotti_venditori_ids)
 
 # Rotta per spedire i propri prodotti
-@autorizzazioni.route('/spedisci_ordine/<int:ordine_id>', methods=['POST'])
+@logica.route('/spedisci_ordine/<int:ordine_id>', methods=['POST'])
 @login_required
 def spedisci_ordine(ordine_id):
     ordine = Ordine.query.get_or_404(ordine_id)
@@ -221,10 +221,10 @@ def spedisci_ordine(ordine_id):
     db.session.commit()
     flash("Ordine aggiornato!", 'success')
 
-    return redirect(url_for('autorizzazioni.gestisci_ordini'))
+    return redirect(url_for('logica.gestisci_ordini'))
 
 
-@autorizzazioni.route('/aggiungi_al_carrello/<int:prodotto_id>', methods=['POST'])
+@logica.route('/aggiungi_al_carrello/<int:prodotto_id>', methods=['POST'])
 @login_required
 def aggiungi_al_carrello(prodotto_id):
     # Trova il prodotto usando l'ID
@@ -257,7 +257,7 @@ def aggiungi_al_carrello(prodotto_id):
     return redirect(url_for('acquirente.home'))
 
 # Rotta per rimuovere un prodotto dal carrello
-@autorizzazioni.route('/rimuovi_dal_carrello/<int:carrello_prodotto_id>', methods=['POST'])
+@logica.route('/rimuovi_dal_carrello/<int:carrello_prodotto_id>', methods=['POST'])
 @login_required
 def rimuovi_dal_carrello(carrello_prodotto_id):  # Rimuove il prodotto dal carrello o ne diminuisce la quantità
     carrello_prodotto = CarrelloProdotto.query.get_or_404(carrello_prodotto_id)
@@ -265,7 +265,7 @@ def rimuovi_dal_carrello(carrello_prodotto_id):  # Rimuove il prodotto dal carre
     # Verifica che l'utente sia autorizzato a modificare il carrello
     if carrello_prodotto.carrello.user_id != current_user.id:
         flash("Non sei autorizzato a rimuovere questo prodotto dal carrello.", 'error')
-        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+        return redirect(url_for('logica.visualizza_carrello'))
     
     try:
         # Ottieni la quantità dal modulo, predefinita a 1 se non specificato
@@ -282,14 +282,14 @@ def rimuovi_dal_carrello(carrello_prodotto_id):  # Rimuove il prodotto dal carre
         
         # Salva le modifiche
         db.session.commit()
-        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+        return redirect(url_for('logica.visualizza_carrello'))
     
     except SQLAlchemyError as e:
         db.session.rollback()
         flash(f"Errore durante la rimozione del prodotto: {str(e)}", 'error')
-        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+        return redirect(url_for('logica.visualizza_carrello'))
 
-@autorizzazioni.route('/carrello', methods=['GET'])
+@logica.route('/carrello', methods=['GET'])
 @login_required
 def visualizza_carrello():
     carrello = Carrello.query.filter_by(user_id=current_user.id).first()
@@ -305,7 +305,7 @@ def visualizza_carrello():
     return render_template('carrello.html', prodotti=carrello_prodotti, totale=totale)
 
 # Rotta per la ricerca dei prodotti 
-@autorizzazioni.route('/ricerca_prodotto', methods=['GET', 'POST'])
+@logica.route('/ricerca_prodotto', methods=['GET', 'POST'])
 def ricerca_prodotto():
     nome = request.form.get('nome')
     prezzo_min = request.form.get('prezzo_min')
@@ -324,11 +324,11 @@ def ricerca_prodotto():
 
     return render_template('risultati_ricerca.html', prodotti=prodotti)
 
-@autorizzazioni.route('/ricerca_prodotti', methods=['GET'])
+@logica.route('/ricerca_prodotti', methods=['GET'])
 def mostra_form_ricerca():
     return render_template('ricerca_prodotti.html')
 
-@autorizzazioni.route('/acquista', methods=['POST'])
+@logica.route('/acquista', methods=['POST'])
 @login_required
 def acquista():
     # Ottieni il carrello dell'utente
@@ -337,7 +337,7 @@ def acquista():
     # Verifica se il carrello è vuoto
     if not carrello.prodotti:
         flash('Il carrello è vuoto.', 'error')
-        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+        return redirect(url_for('logica.visualizza_carrello'))
 
     # Creazione di un nuovo ordine
     nuovo_ordine = Ordine(user_id=current_user.id)
@@ -351,7 +351,7 @@ def acquista():
             
             if prodotto.quantita < carrello_prodotto.quantita:
                 flash(f"Quantità insufficiente per il prodotto {prodotto.nome}.", 'error')
-                return redirect(url_for('autorizzazioni.visualizza_carrello'))
+                return redirect(url_for('logica.visualizza_carrello'))
 
             # Riduci la quantità del prodotto disponibile
             prodotto.quantita -= carrello_prodotto.quantita
@@ -387,9 +387,9 @@ def acquista():
     except SQLAlchemyError as e:
         db.session.rollback()
         flash(f"Errore durante l'acquisto: {str(e)}", 'error')
-        return redirect(url_for('autorizzazioni.visualizza_carrello'))
+        return redirect(url_for('logica.visualizza_carrello'))
     
-@autorizzazioni.route('/recensione/<int:prodotto_id>', methods=['GET', 'POST'])
+@logica.route('/recensione/<int:prodotto_id>', methods=['GET', 'POST'])
 @login_required
 def recensione_prodotto(prodotto_id):
     prodotto = Prodotto.query.get(prodotto_id)
