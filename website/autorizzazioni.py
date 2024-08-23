@@ -298,7 +298,11 @@ def visualizza_carrello():
         db.session.add(carrello)
         db.session.commit()
     carrello_prodotti = CarrelloProdotto.query.filter_by(carrello_id=carrello.id).all()
-    return render_template('carrello.html', prodotti=carrello_prodotti)
+
+    # Calcola il costo totale del carrello
+    totale = sum(p.prodotto.prezzo * p.quantita * (0.9 if p.sconto else 1) for p in carrello_prodotti)
+
+    return render_template('carrello.html', prodotti=carrello_prodotti, totale=totale)
 
 # Rotta per la ricerca dei prodotti 
 @autorizzazioni.route('/ricerca_prodotto', methods=['GET', 'POST'])

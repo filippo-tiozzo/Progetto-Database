@@ -48,6 +48,13 @@
                 </div>
             {% endfor %}
         </div>
+
+        <!-- Mostra il costo totale del carrello -->
+        <div class="mt-4">
+            <h4>Costo Totale:</h4>
+            <p><strong>{{ totale }} €</strong></p>
+        </div>
+
     {% else %}
         <div class="alert alert-info mt-4">
             <p class="text-center">Il tuo carrello è vuoto.</p>
