@@ -224,53 +224,70 @@ def spedisci_ordine(ordine_id):
     return redirect(url_for('autorizzazioni.gestisci_ordini'))
 
 
-# Rotta per aggiungere un prodotto al carrello
 @autorizzazioni.route('/aggiungi_al_carrello/<int:prodotto_id>', methods=['POST'])
 @login_required
 def aggiungi_al_carrello(prodotto_id):
+    # Trova il prodotto usando l'ID
     prodotto = Prodotto.query.get_or_404(prodotto_id)
-    carrello = Carrello.query.filter_by(user_id=current_user.id).first()
     
+    # Trova il carrello dell'utente, se non esiste ne crea uno nuovo
+    carrello = Carrello.query.filter_by(user_id=current_user.id).first()
     if not carrello:
         carrello = Carrello(user_id=current_user.id)
         db.session.add(carrello)
     
+    # Ottieni la quantità dal modulo, predefinito a 1 se non specificato
+    quantita = int(request.form.get('quantita', 1))
+
+    # Trova il prodotto nel carrello se già esistente
     carrello_prodotto = CarrelloProdotto.query.filter_by(carrello_id=carrello.id, prodotto_id=prodotto.id).first()
 
     if carrello_prodotto:
-        carrello_prodotto.quantita += 1
+        # Aggiorna la quantità del prodotto nel carrello
+        carrello_prodotto.quantita += quantita
     else:
-        carrello_prodotto = CarrelloProdotto(carrello_id=carrello.id, prodotto_id=prodotto.id, quantita=1)
+        # Aggiungi il nuovo prodotto con la quantità specificata
+        carrello_prodotto = CarrelloProdotto(carrello_id=carrello.id, prodotto_id=prodotto.id, quantita=quantita)
         db.session.add(carrello_prodotto)
 
+    # Salva le modifiche nel database
     db.session.commit()
     flash("Prodotto aggiunto al carrello!", 'success')
-    #return render_template('risultati_ricerca.html', prodotto_id=prodotto)
+    
     return redirect(url_for('acquirente.home'))
 
 # Rotta per rimuovere un prodotto dal carrello
 @autorizzazioni.route('/rimuovi_dal_carrello/<int:carrello_prodotto_id>', methods=['POST'])
 @login_required
-def rimuovi_dal_carrello(carrello_prodotto_id):   #rimuove il prodotto dal carrello o ne diminuisce la quantità di 1
+def rimuovi_dal_carrello(carrello_prodotto_id):  # Rimuove il prodotto dal carrello o ne diminuisce la quantità
     carrello_prodotto = CarrelloProdotto.query.get_or_404(carrello_prodotto_id)
     
+    # Verifica che l'utente sia autorizzato a modificare il carrello
     if carrello_prodotto.carrello.user_id != current_user.id:
         flash("Non sei autorizzato a rimuovere questo prodotto dal carrello.", 'error')
         return redirect(url_for('autorizzazioni.visualizza_carrello'))
+    
     try:
-        # Riduci la quantità di 1
-        if carrello_prodotto.quantita > 1:
-            carrello_prodotto.quantita -= 1
-            flash("Quantità del prodotto diminuita di 1", 'success')
+        # Ottieni la quantità dal modulo, predefinita a 1 se non specificato
+        quantita_da_rimuovere = int(request.form.get('quantita', 1))
+
+        # Se la quantità nel carrello è maggiore della quantità da rimuovere, sottrai
+        if carrello_prodotto.quantita > quantita_da_rimuovere:
+            carrello_prodotto.quantita -= quantita_da_rimuovere
+            flash(f"Quantità del prodotto diminuita di {quantita_da_rimuovere}", 'success')
         else:
-            # Se la quantità è 1, rimuovi il prodotto dal carrello
+            # Se la quantità è 1 o minore, rimuovi completamente il prodotto dal carrello
             db.session.delete(carrello_prodotto)
             flash("Prodotto rimosso dal carrello.", 'success')
+        
+        # Salva le modifiche
         db.session.commit()
         return redirect(url_for('autorizzazioni.visualizza_carrello'))
+    
     except SQLAlchemyError as e:
         db.session.rollback()
         flash(f"Errore durante la rimozione del prodotto: {str(e)}", 'error')
+        return redirect(url_for('autorizzazioni.visualizza_carrello'))
 
 @autorizzazioni.route('/carrello', methods=['GET'])
 @login_required
