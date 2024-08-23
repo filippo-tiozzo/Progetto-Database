@@ -13,15 +13,35 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ carrello_prodotto.prodotto.nome }}</h5>
                             <p class="card-text">{{ carrello_prodotto.prodotto.descrizione }}</p>
-                            <p class="card-text"><strong>Prezzo:</strong> {{ carrello_prodotto.prodotto.prezzo }} €</p>
+
+                            <!-- Verifica se è applicato uno sconto -->
+                            <p class="card-text">
+                                <strong>Prezzo:</strong>
+                                {% if carrello_prodotto.sconto %}
+                                    <!-- Prezzo barrato -->
+                                    <span style="text-decoration: line-through;">
+                                        {{ carrello_prodotto.prodotto.prezzo }} €
+                                    </span>
+                                    <!-- Prezzo scontato -->
+                                    <span class="text-success">
+                                        {{ carrello_prodotto.prodotto.prezzo * 0.9 }} €
+                                    </span>
+                                    <!-- Badge sconto applicato -->
+                                    <span class="badge bg-success">Sconto applicato!</span>
+                                {% else %}
+                                    <!-- Prezzo senza sconto -->
+                                    {{ carrello_prodotto.prodotto.prezzo }} €
+                                {% endif %}
+                            </p>
+
                             <p class="card-text"><strong>Quantità:</strong> {{ carrello_prodotto.quantita }}</p>
-                            <!-- Modulo per rimuovere unità dal carrello -->
+
                             <form action="{{ url_for('autorizzazioni.rimuovi_dal_carrello', carrello_prodotto_id=carrello_prodotto.id) }}" method="POST">
                                 <div class="form-group">
                                     <label for="quantita">Quantità da rimuovere:</label>
                                     <input type="number" name="quantita" id="quantita" class="form-control" value="1" min="1" max="{{ carrello_prodotto.quantita }}">
                                 </div>
-                                <button type="submit" class="btn btn-danger">Rimuovi dal Carrello</button>
+                                <button type="submit" class="btn btn-danger mt-2">Rimuovi dal Carrello</button>
                             </form>
                         </div>
                     </div>
