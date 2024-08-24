@@ -6,9 +6,31 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto, Recensione, Venditore
 from .import db
+from werkzeug.security import generate_password_hash
+
 
 # Definizione blueprint
 logica = Blueprint('logica', __name__)
+
+
+@logica.route('/cambia_password', methods=['GET', 'POST'])
+@login_required
+def cambia_password():
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if new_password != confirm_password:
+            flash('Le password non coincidono', 'error')
+            return redirect(url_for('logica.cambia_password'))
+
+        hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
+        current_user.password = hashed_password
+        db.session.commit()
+        flash('Password cambiata con successo', 'success')
+        return redirect(url_for('logica.cambia_password'))
+
+    return render_template('cambia_password.html')
 
 # Creazione engine e sessione collegati al database 'amministratore'
 def get_autho_session():

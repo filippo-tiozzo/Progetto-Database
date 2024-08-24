@@ -35,6 +35,7 @@
                 {% elif g.user.ruolo == 'Acquirente' %}
                 <a class="nav-item nav-link" href="{{ url_for('logica.mostra_form_ricerca') }}">Ricerca prodotti</a>
                 <a class="nav-item nav-link" href="{{ url_for('logica.visualizza_carrello') }}">Vai al Carrello</a>
+                    <a class="nav-item nav-link" href="{{ url_for('logica.cambia_password') }}">Cambia password</a>
                 {% endif %}
 
             <!-- Pulsanti di login e registrazione -->
