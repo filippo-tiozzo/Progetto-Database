@@ -48,11 +48,13 @@ class Prodotto(db.Model):
             return sum(r.voto for r in recensioni) / len(recensioni)
         return None
     
+# Definizione classe (tabella) Carrello
 class Carrello(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
     prodotti = db.relationship('CarrelloProdotto', back_populates='carrello')
 
+# Definizione classe (tabella) CarrelloProdotto
 class CarrelloProdotto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     carrello_id = db.Column(db.Integer, db.ForeignKey('carrello.id'), nullable=False)
@@ -62,6 +64,7 @@ class CarrelloProdotto(db.Model):
     carrello = db.relationship('Carrello', back_populates='prodotti')
     prodotto = db.relationship('Prodotto')
 
+# Definizione classe (tabella) Acquisto
 class Acquisto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
@@ -73,6 +76,7 @@ class Acquisto(db.Model):
     def ha_recensione(self):
         return Recensione.query.filter_by(prodotto_id=self.prodotto_id, user_id=self.user_id).first() is not None
 
+# Definizione classe (tabella) Ordine
 class Ordine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
@@ -80,6 +84,7 @@ class Ordine(db.Model):
     prodotti = db.relationship('OrdineProdotto', backref='ordine', lazy=True)
     stato = db.Column(db.String(20), nullable=False, default='acquistato')
 
+# Definizione classe (tabella) OrdineProdotto
 class OrdineProdotto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ordine_id = db.Column(db.Integer, db.ForeignKey('ordine.id'), nullable=False)
@@ -88,13 +93,13 @@ class OrdineProdotto(db.Model):
     spedito = db.Column(db.Boolean, default=False) 
     prodotto = db.relationship('Prodotto')
 
+# Definizione classe (tabella) Recensione
 class Recensione(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     prodotto_id = db.Column(db.Integer, db.ForeignKey('prodotto.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('utenti.id'), nullable=False)
     voto = db.Column(db.Integer, nullable=False)
     data_recensione = db.Column(db.DateTime, default=datetime.now, nullable=False)
-
     prodotto = db.relationship('Prodotto', backref='recensioni')
     user = db.relationship('Utenti', backref='recensioni')
     
