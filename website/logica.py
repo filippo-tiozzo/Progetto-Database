@@ -7,7 +7,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from .modelli import login_utente, registrazione_utente, Prodotto, Carrello, CarrelloProdotto, Ordine, OrdineProdotto, Acquisto, Recensione, Venditore
 from .import db
 
-
 # Definizione blueprint
 logica = Blueprint('logica', __name__)
 
@@ -113,7 +112,7 @@ def vendi_prodotto():
     return render_template('vendi_prodotto.html')
 
 
-# Rotta per eliminare un prodotto
+# Definizione rotta '/elimina_prodotto'
 @logica.route('/elimina_prodotto/<int:prodotto_id>', methods=['POST'])
 @login_required
 def elimina_prodotto(prodotto_id):
@@ -136,7 +135,7 @@ def elimina_prodotto(prodotto_id):
 
     return redirect(url_for('venditore.home'))
 
-# Rotta per modificare un prodotto
+# Definizione rotta '/modifica_prodotto'
 @logica.route('/modifica_prodotto/<int:prodotto_id>', methods=['GET', 'POST'])
 @login_required
 def modifica_prodotto(prodotto_id):
@@ -170,6 +169,7 @@ def modifica_prodotto(prodotto_id):
 
     return render_template('modifica_prodotto.html', prodotto=prodotto)
 
+# Definizione rotta '/gestisci_ordini'
 @logica.route('/gestisci_ordini', methods=['GET'])
 @login_required
 def gestisci_ordini():
@@ -194,7 +194,7 @@ def gestisci_ordini():
 
     return render_template('gestisci_ordini.html', ordini=ordini, prodotti_venditore=prodotti_venditori_ids)
 
-# Rotta per spedire i propri prodotti
+# Definizione rotta '/spedisci_ordine'
 @logica.route('/spedisci_ordine/<int:ordine_id>', methods=['POST'])
 @login_required
 def spedisci_ordine(ordine_id):
@@ -224,6 +224,7 @@ def spedisci_ordine(ordine_id):
     return redirect(url_for('logica.gestisci_ordini'))
 
 
+# Definizione rotta '/aggiungi_al_carrello'
 @logica.route('/aggiungi_al_carrello/<int:prodotto_id>', methods=['POST'])
 @login_required
 def aggiungi_al_carrello(prodotto_id):
@@ -256,7 +257,7 @@ def aggiungi_al_carrello(prodotto_id):
     
     return redirect(url_for('acquirente.home'))
 
-# Rotta per rimuovere un prodotto dal carrello
+# Definizione rotta '/rimuovi_dal_carrello'
 @logica.route('/rimuovi_dal_carrello/<int:carrello_prodotto_id>', methods=['POST'])
 @login_required
 def rimuovi_dal_carrello(carrello_prodotto_id):  # Rimuove il prodotto dal carrello o ne diminuisce la quantità
@@ -289,6 +290,7 @@ def rimuovi_dal_carrello(carrello_prodotto_id):  # Rimuove il prodotto dal carre
         flash(f"Errore durante la rimozione del prodotto: {str(e)}", 'error')
         return redirect(url_for('logica.visualizza_carrello'))
 
+# Definizione rotta '/carrello'
 @logica.route('/carrello', methods=['GET'])
 @login_required
 def visualizza_carrello():
@@ -304,7 +306,7 @@ def visualizza_carrello():
 
     return render_template('carrello.html', prodotti=carrello_prodotti, totale=totale)
 
-# Rotta per la ricerca dei prodotti 
+# Definizione rotta '/ricerca_prodotto'
 @logica.route('/ricerca_prodotto', methods=['GET', 'POST'])
 def ricerca_prodotto():
     nome = request.form.get('nome')
@@ -324,10 +326,12 @@ def ricerca_prodotto():
 
     return render_template('risultati_ricerca.html', prodotti=prodotti)
 
+# Definizione rotta '/ricerca_prodotti'
 @logica.route('/ricerca_prodotti', methods=['GET'])
 def mostra_form_ricerca():
     return render_template('ricerca_prodotti.html')
 
+# Definizione rotta '/acquista'
 @logica.route('/acquista', methods=['POST'])
 @login_required
 def acquista():
@@ -389,6 +393,7 @@ def acquista():
         flash(f"Errore durante l'acquisto: {str(e)}", 'error')
         return redirect(url_for('logica.visualizza_carrello'))
     
+# Definizione rotta '/recensione'
 @logica.route('/recensione/<int:prodotto_id>', methods=['GET', 'POST'])
 @login_required
 def recensione_prodotto(prodotto_id):
